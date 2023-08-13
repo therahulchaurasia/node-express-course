@@ -7,7 +7,7 @@ const app = express()
 const connectDB = require('./db/connect')
 const productsRouter = require('./routes/products')
 
-const notFundMiddleWare = require('./middleware/not-found')
+const notFoundMiddleWare = require('./middleware/not-found')
 const errorMiddleWare = require('./middleware/error-handler')
 
 // middleware
@@ -23,7 +23,7 @@ app.use('/api/v1/products', productsRouter)
 
 // Products routes
 
-app.use(notFundMiddleWare)
+app.use(notFoundMiddleWare)
 app.use(errorMiddleWare)
 
 const PORT = process.env.PORT || 5000
