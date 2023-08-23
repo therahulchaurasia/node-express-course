@@ -1,7 +1,7 @@
 const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError } = require('../errors/index')
-const jwt = require('jsonwebtoken')
+
 const register = async (req, res) => {
   {
     /* const { name, email, password } = req.body
@@ -17,11 +17,9 @@ const register = async (req, res) => {
   }
   //? Mongoose middleware handles everything for you.
   //? Check the user file in models to study the schema
-  console.log('HEllo')
   const user = await User.create({ ...req.body })
-  const token = jwt.sign({ userId: user._id, name: user.name }, 'jwtsecret', {
-    expiresIn: '30d',
-  })
+  const token = user.createJWT()
+  console.log(token)
   res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token })
 }
 
