@@ -11,6 +11,7 @@ const authenticationMiddleware = async (req, res, next) => {
   const token = authHeader.split(' ')[1]
   try {
     const payload = await jwt.verify(token, process.env.JWT_SECRET)
+    console.log(payload)
     req.user = { userId: payload.userId, name: payload.name }
     next() //! Very Very important. The controller code won't parse if you don't pass next inside the middleware
   } catch (error) {
