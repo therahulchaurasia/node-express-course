@@ -23,9 +23,25 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please provide password'],
     minlength: 6,
   },
+  lastName: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+    default: 'lastName',
+  },
+  location: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+    default: 'my city',
+  },
 })
 
 UserSchema.pre('save', async function () {
+  // When we update the user we use the user.save function which triggers the following piece of code and this results in the password being hashed again. However, we do not provide any password nor try to change it so the functionality breaks when you create a new hash out of nothing.
+  console.log(this.modifiedPaths())
+  // To handle the above issue we use the following property and return if the password was untouched
+  if (!this.isModified('password')) return
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
 })
