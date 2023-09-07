@@ -19,6 +19,8 @@ const notFoundMiddleware = require('./middleware/not-found')
 const errorHandlerMiddleware = require('./middleware/error-handler')
 const { __esModule } = require('xss-clean/lib/xss')
 
+app.set('trust proxy', 1)
+
 console.log(path.resolve(__dirname, './client/build', 'index.html'))
 app.use(express.static(path.resolve(__dirname, './client/build')))
 app.use(express.json())
@@ -42,7 +44,7 @@ const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI)
     app.listen(port, () =>
-      console.log(`Server is listening on port ${port}...`)
+      console.log(`Server is listening on port ${port}...`),
     )
   } catch (error) {
     console.log(error)
