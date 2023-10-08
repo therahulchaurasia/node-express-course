@@ -4,6 +4,7 @@ require('express-async-errors')
 
 //db import
 const connectDB = require('./db/connect')
+const authRouter = require('./routes/authRoutes')
 
 //express
 const express = require('express')
@@ -18,6 +19,8 @@ app.use(morgan('tiny'))
 //To access the json data received in the body during api calls
 app.use(express.json())
 
+app.use('/api/v1/auth', authRouter)
+
 app.get('/', (req, res) => {
   res.status(200).send('home')
 })
@@ -25,7 +28,7 @@ app.get('/', (req, res) => {
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
-const PORT = 5000
+const PORT = process.env.PORT || 5000
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URL)
