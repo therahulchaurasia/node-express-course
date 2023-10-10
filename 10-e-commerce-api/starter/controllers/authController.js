@@ -1,6 +1,8 @@
 const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../errors/index')
+const jwt = require('jsonwebtoken')
+const { createJWT } = require('../utils')
 
 const register = async (req, res) => {
   const { email, password, name } = req.body
@@ -17,7 +19,9 @@ const register = async (req, res) => {
 
   // Never directly pass the req.body in this object. Pick your values and send them
   const user = await User.create({ email, password, name, role })
-  res.status(StatusCodes.CREATED).json({ user })
+  const tokenUser = { name: user.name, userId: user._id, role: user.role }
+  const token = createJWT({ payload: tokenUser })
+  res.status(StatusCodes.CREATED).json({ user: tokenUser, token })
 }
 
 const login = async (req, res) => {
