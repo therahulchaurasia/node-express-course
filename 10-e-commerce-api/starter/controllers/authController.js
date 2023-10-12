@@ -2,7 +2,7 @@ const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../errors/index')
 const jwt = require('jsonwebtoken')
-const { createJWT } = require('../utils')
+const { attachCookiesToResponse } = require('../utils')
 
 const register = async (req, res) => {
   const { email, password, name } = req.body
@@ -20,16 +20,49 @@ const register = async (req, res) => {
   // Never directly pass the req.body in this object. Pick your values and send them
   const user = await User.create({ email, password, name, role })
   const tokenUser = { name: user.name, userId: user._id, role: user.role }
-  const token = createJWT({ payload: tokenUser })
-  res.status(StatusCodes.CREATED).json({ user: tokenUser, token })
+  attachCookiesToResponse({ payload: tokenUser, response: res })
+
+  res.status(StatusCodes.CREATED).json({ user: tokenUser })
 }
 
 const login = async (req, res) => {
-  res.status(StatusCodes.OK).send('login')
+  const { email, password, name } = req.body
+
+  if (!email || !password) {
+    throw new CustomError.BadRequestError('Email or password is invalid')
+  }
+
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new CustomError.UnauthenticatedError(
+      'Please provide valid credentials'
+    )
+  }
+
+  const checkPassword = await user.comparePassword(password)
+
+  if (!checkPassword) {
+    throw new CustomError.UnauthenticatedError(
+      'Please provide a valid password'
+    )
+  }
+  console.log('Step 4')
+
+  const tokenUser = {
+    name: user.name,
+    userId: user._id,
+    role: user.role,
+  }
+  attachCookiesToResponse({ payload: tokenUser, response: res })
+  res.status(StatusCodes.OK).json({ user: tokenUser })
 }
 
 const logout = async (req, res) => {
-  res.status(StatusCodes.OK).send('logout')
+  res.cookie('token', 'logout', {
+    httpOnly: true,
+    expiresIn: new Date(Date.now()),
+  })
+  res.status(StatusCodes.OK).json({ msg: 'user logged out successfully' })
 }
 
 module.exports = { register, login, logout }

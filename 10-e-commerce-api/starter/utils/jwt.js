@@ -9,4 +9,16 @@ const createJWT = ({ payload }) => {
 
 const isTokenValid = ({ token }) => jwt.verify(token, process.env.JWT_SECRET)
 
-module.exports = { createJWT, isTokenValid }
+const attachCookiesToResponse = ({ payload, response }) => {
+  const oneDay = 1000 * 60 * 60 * 24
+  const token = createJWT({ payload })
+  response.cookie('token', token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + oneDay),
+    secure: process.env.NODE_ENV === 'production',
+    signed: true,
+  })
+  return token
+}
+
+module.exports = { createJWT, isTokenValid, attachCookiesToResponse }

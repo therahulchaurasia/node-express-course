@@ -10,14 +10,24 @@ const authRouter = require('./routes/authRoutes')
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const cookieParser = require('cookie-parser') // Use it parse cookies
 
 //Middleware
 const errorHandlerMiddleware = require('./middleware/error-handler')
 const notFoundMiddleware = require('./middleware/not-found')
 
 app.use(morgan('tiny'))
-//To access the json data received in the body during api calls
-app.use(express.json())
+app.use(express.json()) //To access the json data received in the body during api calls
+app.use(cookieParser(process.env.JWT_SECRET)) // We need this package to parse cookies and we send the secret to sign the cookie.
+
+app.get('/', (req, res) => {
+  res.send('e-commerce-api')
+})
+app.get('/api/v1', (req, res) => {
+  // console.log(req.cookies)
+  console.log(req.signedCookies)
+  res.send('e-commerce-api')
+})
 
 app.use('/api/v1/auth', authRouter)
 
