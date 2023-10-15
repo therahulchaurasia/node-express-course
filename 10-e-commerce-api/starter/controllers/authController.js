@@ -46,8 +46,6 @@ const login = async (req, res) => {
       'Please provide a valid password'
     )
   }
-  console.log('Step 4')
-
   const tokenUser = {
     name: user.name,
     userId: user._id,

@@ -5,6 +5,7 @@ require('express-async-errors')
 //db import
 const connectDB = require('./db/connect')
 const authRouter = require('./routes/authRoutes')
+const userRouter = require('./routes/userRoutes')
 
 //express
 const express = require('express')
@@ -30,6 +31,7 @@ app.get('/api/v1', (req, res) => {
 })
 
 app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/users', userRouter)
 
 app.get('/', (req, res) => {
   res.status(200).send('home')
