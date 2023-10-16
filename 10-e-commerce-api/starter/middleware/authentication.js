@@ -10,6 +10,7 @@ const authenticateUser = async (req, res, next) => {
   }
   try {
     const { name, userId, role } = isTokenValid({ token })
+
     req.user = {
       name,
       userId,

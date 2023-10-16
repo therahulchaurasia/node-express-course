@@ -2,7 +2,7 @@ const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../errors/index')
 const jwt = require('jsonwebtoken')
-const { attachCookiesToResponse } = require('../utils')
+const { attachCookiesToResponse, createTokenUser } = require('../utils')
 
 const register = async (req, res) => {
   const { email, password, name } = req.body
@@ -19,7 +19,7 @@ const register = async (req, res) => {
 
   // Never directly pass the req.body in this object. Pick your values and send them
   const user = await User.create({ email, password, name, role })
-  const tokenUser = { name: user.name, userId: user._id, role: user.role }
+  const tokenUser = createTokenUser(user)
   attachCookiesToResponse({ payload: tokenUser, response: res })
 
   res.status(StatusCodes.CREATED).json({ user: tokenUser })
@@ -46,11 +46,7 @@ const login = async (req, res) => {
       'Please provide a valid password'
     )
   }
-  const tokenUser = {
-    name: user.name,
-    userId: user._id,
-    role: user.role,
-  }
+  const tokenUser = createTokenUser(user)
   attachCookiesToResponse({ payload: tokenUser, response: res })
   res.status(StatusCodes.OK).json({ user: tokenUser })
 }
