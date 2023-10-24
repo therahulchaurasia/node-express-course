@@ -56,13 +56,35 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    numOfReviews: {
+      type: Number,
+      default: 0,
+    },
     user: {
       type: mongoose.Types.ObjectId,
       ref: 'User',
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 )
+
+//Similar to joining two tables in sql
+ProductSchema.virtual('reviews', {
+  ref: 'Review', // Reference to the other table
+  localField: '_id', // Field in the local table
+  // JOIN
+  foreignField: 'product', // Field in the other table where you want to join
+  justOne: false, // Limit value
+  // match: { rating: 5 }, // WHERE condition
+})
+
+//* Fetching the value and then changing it around in the controller instead of directly using mongoose methods gives you access to such hooks
+//* Refer the delete controller for products. You can see that instead of findAndDeleteById we fetch the data and perform manual deletion. This gives us access to the following hook
+ProductSchema.pre('remove', async function (next) {
+  // It allows you to access other models as well and perform operations
+  await this.model('Review').deleteMany({ product: this._id })
+})
+
 //* Then we declare the model supporting it.
 module.exports = mongoose.model('Product', ProductSchema)
