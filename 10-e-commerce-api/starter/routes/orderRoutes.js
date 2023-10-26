@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require("express")
 const router = express.Router()
 const {
   getAllOrders,
@@ -6,19 +6,22 @@ const {
   getCurrentUserOrders,
   createOrder,
   updateOrder,
-} = require('../controllers/orderController')
+} = require("../controllers/orderController")
 const {
   authenticateUser,
   authorizePermissions,
-} = require('../middleware/authentication')
+} = require("../middleware/authentication")
 
 router
-  .route('/')
-  .get([authenticateUser, authorizePermissions('admin')], getAllOrders)
+  .route("/")
+  .get([authenticateUser, authorizePermissions("admin")], getAllOrders)
   .post(authenticateUser, createOrder)
 
-router.route('/showAllMyOrders').get(authenticateUser, getCurrentUserOrders)
+router.route("/showAllMyOrders").get(authenticateUser, getCurrentUserOrders)
 
-router.route('/:id').get(getSingleOrder).patch(authenticateUser, updateOrder)
+router
+  .route("/:id")
+  .get(authenticateUser, getSingleOrder)
+  .patch(authenticateUser, updateOrder)
 
 module.exports = router
