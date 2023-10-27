@@ -23,11 +23,10 @@ const UserSchema = new mongoose.Schema(
     },
     timeZone: {
       type: String,
-      required: true,
     },
     image: {
       type: String,
-      required: true,
+      default: "/uploads/example.jpeg",
     },
   },
   { timestamps: true }

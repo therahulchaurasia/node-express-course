@@ -3,6 +3,7 @@ require("express-async-errors")
 
 const express = require("express")
 const app = express()
+const fileUpload = require("express-fileupload")
 
 const connectDB = require("./db/connect")
 const userRouter = require("./routes/userRoutes")
@@ -12,7 +13,8 @@ const errorMiddleware = require("./middleware/error-handler")
 
 // middleware
 app.use(express.json())
-
+app.use(express.static("./public"))
+app.use(fileUpload())
 // routes
 
 app.get("/", (req, res) => {
