@@ -29,6 +29,13 @@ const register = async (req, res) => {
     verificationToken,
   })
   const origin = `http://localhost:3000`
+  // const _origin = req.get('origin');
+  // const protocol = req.protocol
+  // const host = req.get('host');
+  // const forwardedHost = req.get('x-forwarded-host')
+  // const forwardedProtocol = req.get('x-forwarded-proto')
+
+  console.log(req);
   await sendVerificationEmail({
     name: user.name,
     email: user.email,
@@ -48,6 +55,8 @@ const verifyEmail = async (req, res) => {
   if (!user) {
     throw new CustomError.UnauthenticatedError("Verification Failed")
   }
+  console.log(verificationToken,user.verificationToken);
+  console.log(typeof verificationToken, typeof user.verificationToken);
   if (user.verificationToken !== verificationToken) {
     throw new CustomError.UnauthenticatedError("Verification Failed")
   }
