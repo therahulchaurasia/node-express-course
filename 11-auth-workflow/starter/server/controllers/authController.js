@@ -1,4 +1,5 @@
 const User = require("../models/User")
+const Token = require("../models/Token")
 const { StatusCodes } = require("http-status-codes")
 const CustomError = require("../errors")
 const {
@@ -35,7 +36,6 @@ const register = async (req, res) => {
   // const forwardedHost = req.get('x-forwarded-host')
   // const forwardedProtocol = req.get('x-forwarded-proto')
 
-  console.log(req);
   await sendVerificationEmail({
     name: user.name,
     email: user.email,
@@ -53,19 +53,19 @@ const verifyEmail = async (req, res) => {
   const user = await User.findOne({ email })
 
   if (!user) {
-    throw new CustomError.UnauthenticatedError("Verification Failed")
+    throw new CustomError.UnauthenticatedError("Verification failed")
   }
-  console.log(verificationToken,user.verificationToken);
-  console.log(typeof verificationToken, typeof user.verificationToken);
+
   if (user.verificationToken !== verificationToken) {
-    throw new CustomError.UnauthenticatedError("Verification Failed")
+    throw new CustomError.UnauthenticatedError("Verification failed")
   }
 
   user.isVerified = true
   user.verified = Date.now()
   user.verificationToken = ""
+
   await user.save()
-  res.status(StatusCodes.OK).json({ msg: "Email verified" })
+  return res.status(StatusCodes.OK).json({ msg: "Email Verified" })
 }
 
 const login = async (req, res) => {
@@ -87,9 +87,20 @@ const login = async (req, res) => {
     throw new CustomError.UnauthenticatedError("Please verify your email first")
   }
   const tokenUser = createTokenUser(user)
-  attachCookiesToResponse({ res, user: tokenUser })
 
-  res.status(StatusCodes.OK).json({ user: tokenUser })
+  // create refresh token
+  let refreshToken = ""
+  // Check for existing token
+  refreshToken = crypto.randomBytes(40).toString("hex")
+  console.log(req.header["user-agent"], req.ip)
+  const userAgent = req.headers["user-agent"]
+  const ip = req.ip
+  const userToken = { refreshToken, ip, userAgent, user: user._id }
+
+  const token = await Token.create(userToken)
+  // attachCookiesToResponse({ res, user: tokenUser })
+
+  res.status(StatusCodes.OK).json({ user: tokenUser, token })
 }
 const logout = async (req, res) => {
   res.cookie("token", "logout", {
